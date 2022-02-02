@@ -11,7 +11,7 @@
 ## Project Structure
 
 - **Entry point**  
-  app.js: exports an ***async*** function
+  ***app.js***: exports an ***async*** function
 
 ## Plugin  
 
