@@ -71,6 +71,10 @@ function(fastifyInstance, opts, next){
 
 ##### Route Handler
 
+Notes:
+
+1. **Not to forget `return` clause in the handler**
+
 ```javascript
 async function(request, reply){
     // Whatever returned by this handler will be sent as the content of the HTTP response.
@@ -79,6 +83,10 @@ async function(request, reply){
     // If return a string, it would be better to append '\n' to the end of the string in case
     // the server being accessed by command line tool to present a nice response which is
     // easily readable by human.
+
+    // Stream can also be returned by this handler.
+    // The behavior would be the same as passing a stream to `reply.send()`.
+    // Fastify will pipe the stream returned or passed to the HTTP response.
 }
 ```
 
@@ -98,6 +106,8 @@ async function(request, reply){
   Set Content-Type header
 - `reply.status(405)`  
   Set HTTP status code
+- `reply.send(anything even a stream)`
+  Send response to a request
 
 Learn more about [request](https://www.fastify.io/docs/v3.27.x/Reference/Request/) and [reply](https://www.fastify.io/docs/v3.27.x/Reference/Reply/).
 
