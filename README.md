@@ -58,6 +58,30 @@ function(fastifyInstance, opts, next){
   - `-w`  
     Watch file and reload the project
 
+## [create-fastify](https://github.com/fastify/create-fastify)
+
+### Options
+
+- `--integrate`  
+
+  将 Fastify 集成到现有的项目中去  
+
+  `npm init fastify --integrate`  
+
+  **注意**  
+
+  集成模式会覆盖现有项目中的以下文件：
+
+  - .gitignore
+  - app.js
+  - plugins
+  - routes
+  - test
+
+  集成模式会修改现有项目中的以下文件：  
+
+  - package.json
+
 ## Fastify Instance
 
 ### Methods
@@ -174,3 +198,15 @@ Learn more about [request](https://www.fastify.io/docs/v3.27.x/Reference/Request
     - view(`template file name`, `object store of template locals`)  
     Invoke template engine to render specific views and send the result as respone.  
     For example: `return reply.view('index.hbs')` searches `index.hbs` template in `root` option and render it then send the result.
+
+- [fastify-sensible](https://github.com/fastify/fastify-sensible)  
+  
+  Defaults for Fastify which people need.  
+
+  **Usage:**
+
+  ```javascript
+  fastify.register(require('fastify-sensible'))
+  ```
+
+  **APIs** are listed [here](https://github.com/fastify/fastify-sensible#api)
