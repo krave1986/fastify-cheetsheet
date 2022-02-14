@@ -82,6 +82,10 @@ function(fastifyInstance, opts, next){
 
   - package.json
 
+  The following picture demonstrates details about how fastify integrate mode modifies an existing package.json file.
+
+  ![diff_of_package.json_made_by_fastify](./imgs/diffDetails.png)
+
 ## Fastify Instance
 
 ### Methods
@@ -131,7 +135,7 @@ async function(request, reply){
 - `reply.status(405)`  
   Set HTTP status code
 - `reply.send(anything even a stream)`
-  Send response to a request
+  Send response to a request. If an Error object is passed to it, it will automatically generate a *500 Server Error* status code.
 
 Learn more about [request](https://www.fastify.io/docs/v3.27.x/Reference/Request/) and [reply](https://www.fastify.io/docs/v3.27.x/Reference/Reply/).
 
@@ -145,6 +149,22 @@ Learn more about [request](https://www.fastify.io/docs/v3.27.x/Reference/Request
 ### Notes
 
 1. `/` also being passed to registration methods for non-root routes thanks to `fastify-autoload` plugin. It will register the route prefixed with the name of subfolder.
+
+2. *How to use callback-based api in an `async` route handler?*
+
+   1. Add `await reply` at the end of the handler.
+   2. `promisfy` the callback-based API.
+
+3. What kinds of callback-based API can be `promisfy`ed?
+
+   The ones invoking callbacks in an error-first result-last argument style.
+
+  ```javascript
+  function thisIsACallbackBasedApi (myArgumentsAreNoneOfYourBusiness, theCallback) {
+    doingMyOwnBusiness();
+    theCallback(error, result)
+  }
+  ```
 
 ## 3rd parties
 
@@ -209,4 +229,15 @@ Learn more about [request](https://www.fastify.io/docs/v3.27.x/Reference/Request
   fastify.register(require('fastify-sensible'))
   ```
 
+  If you initialize the project with `create-fastify`, you won't need to run the lines above because it is registered already in `plugins/senseble.js`
+
   **APIs** are listed [here](https://github.com/fastify/fastify-sensible#api)
+
+  **Decorations**  
+
+  - `reply`  
+
+    - `notFound()`
+
+      1. Set response status code to 404.
+      2. Generate JSON output describing `Not Found` error.
