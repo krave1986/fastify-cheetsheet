@@ -17,7 +17,7 @@
 
 ```javascript
 function(fastifyInstance, opts, next){
-    // invoke next() or return a promise 
+    // A plugin is a function which invokes next() or returns a promise 
 }
 ```
 
@@ -36,9 +36,13 @@ function(fastifyInstance, opts, next){
 
   3. Plugins are always asynchronous.
 
-  4. Root plugin is the exported async function of app.js
+  4. Root plugin is the exported async function of app.js  
 
-## Fastify CLI
+  5. Reply does **NOT** have `end()` method!
+
+  6. `process.env.NODE_ENV` is not set when running `npm run dev` which means it will return `undefined` if you try to access it. So the method used to check the environment is based on string - `'production'` not `'dev'`.
+
+## [Fastify CLI](https://github.com/fastify/fastify-cli)
 
 - **Run server**
 
@@ -58,6 +62,9 @@ function(fastifyInstance, opts, next){
   - `-w`  
     Watch file and reload the project
 
+  - `-l`
+    Log level (defaults to fatal)
+
 ## [create-fastify](https://github.com/fastify/create-fastify)
 
 ### Options
@@ -66,7 +73,9 @@ function(fastifyInstance, opts, next){
 
   将 Fastify 集成到现有的项目中去  
 
-  `npm init fastify --integrate`  
+  `npm init fastify -- --integrate`  
+
+  The usage of integrate mode mentioned on [fastify repo](https://github.com/fastify/create-fastify) is `npm init fastify --integrate`. But it turns out it will complain about the exising `package.json` file in my project. So I edited this note.
 
   **注意**  
 
@@ -142,7 +151,7 @@ Learn more about [request](https://www.fastify.io/docs/v3.27.x/Reference/Request
 ### Handlers
 
 - `fastify.setNotFoundHandler(ROUTER_HANDLER)`  
-  Define what to do if NO pathes or HTTP verbs matched
+  Define what to do if **NO** pathes or HTTP verbs match
 
 ## Route
 
@@ -159,12 +168,14 @@ Learn more about [request](https://www.fastify.io/docs/v3.27.x/Reference/Request
 
    The ones invoking callbacks in an error-first result-last argument style.
 
-  ```javascript
-  function thisIsACallbackBasedApi (myArgumentsAreNoneOfYourBusiness, theCallback) {
-    doingMyOwnBusiness();
-    theCallback(error, result)
-  }
-  ```
+   ```javascript
+   function thisIsACallbackBasedApi (myArgumentsAreNoneOfYourBusiness, theCallback) {
+     doingMyOwnBusiness();
+     theCallback(error, result)
+   }
+   ```
+
+4. Always `return` in an async route handler otherwise the promise of the handler will never be fulfilled.
 
 ## 3rd parties
 
@@ -174,7 +185,7 @@ Learn more about [request](https://www.fastify.io/docs/v3.27.x/Reference/Request
   Serve static content. Due to it is not recommended to serve static content from Node process, we usually install it as a dev dependency.
 
   Options:
-  - root  
+  - `root`  
     Serve all files under this directory.
 
   Decorations:
@@ -188,6 +199,8 @@ Learn more about [request](https://www.fastify.io/docs/v3.27.x/Reference/Request
 
   Notes:  
   1. There is no need to append spcific filename - `index.html` to the host URL.Take `http://localhost/` as an example, if you navigate to this URL and no root route defined in the fastify instance, then browser will automatically load index.html. On the other hand, if root route is available, then you'll need to navigate to `http://localhost/index.html` in order to load `index.html` instead.
+
+  2. If you hope that there is only route path in the URL and no filename exposed in the URL. For example, not `http://localhost/hello.html` but `http://localhost/hello`, you can set up `/hello` route and use `reply.sendFile('hello.html')` to send a html file as a response. `reply.sendFile()` method is decoration from `fastify-static`.
 
 - [point-of-view](https://github.com/fastify/point-of-view)
   Fastify's view rendering plugin.
@@ -216,8 +229,14 @@ Learn more about [request](https://www.fastify.io/docs/v3.27.x/Reference/Request
   - reply
 
     - view(`template file name`, `object store of template locals`)  
+    ***DO NOT forget `return`!***
     Invoke template engine to render specific views and send the result as respone.  
     For example: `return reply.view('index.hbs')` searches `index.hbs` template in `root` option and render it then send the result.
+
+  Template local created:
+
+  - `body`  
+    Available if `layout` option of `point-of-view` used.
 
 - [fastify-sensible](https://github.com/fastify/fastify-sensible)  
   
@@ -233,11 +252,38 @@ Learn more about [request](https://www.fastify.io/docs/v3.27.x/Reference/Request
 
   **APIs** are listed [here](https://github.com/fastify/fastify-sensible#api)
 
-  **Decorations**  
+  - **Decorations**  
 
-  - `reply`  
+    - `reply`  
 
-    - `notFound()`
+      - `notFound()`
 
-      1. Set response status code to 404.
-      2. Generate JSON output describing `Not Found` error.
+        1. Set response status code to 404.
+        2. Generate JSON output describing `Not Found` error.
+
+  - **Expossions**  
+  
+    - `fastify.httpErrors`
+
+      This object exposes all `4xx` and `5xx` error ***constructor***!
+
+      - `fastify.httpErrors.notFound()`
+
+- [fastify-autoload](https://github.com/fastify/fastify-autoload)
+
+  It will help fastify to load all plugins found in a directory and automatically configures routes matching the folder structure.  
+  So, the magic of fastify being able to automatically detect route path comes from this plugin.
+
+  **Usage:**  
+
+  ```javascript
+  const autoload = require('fastify-autoload')
+
+  app.register(autoload, {
+    dir: path.join(__dirname, 'plugins')
+  })
+  ```
+
+## Questions
+
+1. How to pass options to the main plugin function defined in `app.js` ?
