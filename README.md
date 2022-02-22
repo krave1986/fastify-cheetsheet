@@ -112,20 +112,20 @@ Notes:
 
 1. **Not to forget `return` clause in the handler**
 
-```javascript
-async function(request, reply){
-    // Whatever returned by this handler will be sent as the content of the HTTP response.
-    // Alternatively, reply.send(content) can also used to do the same job. 
-
-    // If return a string, it would be better to append '\n' to the end of the string in case
-    // the server being accessed by command line tool to present a nice response which is
-    // easily readable by human.
-
-    // Stream can also be returned by this handler.
-    // The behavior would be the same as passing a stream to `reply.send()`.
-    // Fastify will pipe the stream returned or passed to the HTTP response.
-}
-```
+   ```javascript
+   async function(request, reply){
+       // Whatever returned by this handler will be sent as the content of the HTTP response.
+       // Alternatively, reply.send(content) can also used to do the same job. 
+   
+       // If return a string, it would be better to append '\n' to the end of the string in case
+       // the server being accessed by command line tool to present a nice response which is
+       // easily readable by human.
+   
+       // Stream can also be returned by this handler.
+       // The behavior would be the same as passing a stream to `reply.send()`.
+       // Fastify will pipe the stream returned or passed to the HTTP response.
+   }
+   ```
 
 ###### `request` instance
 
@@ -229,7 +229,7 @@ Learn more about [request](https://www.fastify.io/docs/v3.27.x/Reference/Request
   - reply
 
     - view(`template file name`, `object store of template locals`)  
-    ***DO NOT forget `return`!***
+    ***DO NOT forget `return`!***  
     Invoke template engine to render specific views and send the result as respone.  
     For example: `return reply.view('index.hbs')` searches `index.hbs` template in `root` option and render it then send the result.
 
